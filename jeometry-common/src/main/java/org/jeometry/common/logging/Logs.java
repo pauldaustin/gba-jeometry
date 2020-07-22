@@ -4,14 +4,18 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.jeometry.common.collection.map.LruMap;
 import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.exception.WrappedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Logs {
+
+  private static Map<String, Boolean> LOGGED_ERRORS = new LruMap<>(1000);
 
   public static void debug(final Class<?> clazz, final String message) {
     final String name = clazz.getName();
@@ -44,7 +48,7 @@ public class Logs {
   }
 
   public static void debug(final String name, final String message) {
-    final Logger logger = LoggerFactory.getLogger(name);
+    final Logger logger = getLogger(name);
     logger.debug(message);
   }
 
@@ -52,7 +56,7 @@ public class Logs {
     final StringBuilder messageText = new StringBuilder();
     final Throwable logException = getMessageAndException(messageText, message, e);
 
-    final Logger logger = LoggerFactory.getLogger(name);
+    final Logger logger = getLogger(name);
     logger.debug(messageText.toString(), logException);
   }
 
@@ -92,7 +96,7 @@ public class Logs {
   }
 
   public static void error(final String name, final String message) {
-    final Logger logger = LoggerFactory.getLogger(name);
+    final Logger logger = getLogger(name);
     logger.error(message);
   }
 
@@ -100,13 +104,45 @@ public class Logs {
     final StringBuilder messageText = new StringBuilder();
     final Throwable logException = getMessageAndException(messageText, message, e);
 
-    final Logger logger = LoggerFactory.getLogger(name);
+    final Logger logger = getLogger(name);
     logger.error(messageText.toString(), logException);
   }
 
   public static void error(final String name, final Throwable e) {
     final String message = e.getMessage();
     error(name, message, e);
+  }
+
+  public static void errorOnce(final Object object, final String message, final Throwable e) {
+    final StringBuilder messageText = new StringBuilder();
+    final Throwable logException = getMessageAndException(messageText, message, e);
+
+    final String combinedMessage = messageText.toString();
+    if (!LOGGED_ERRORS.containsKey(combinedMessage)) {
+      LOGGED_ERRORS.put(combinedMessage, Boolean.TRUE);
+      final Logger logger = getLogger(object);
+      logger.error(combinedMessage, logException);
+    }
+  }
+
+  public static Logger getLogger(final Class<?> clazz) {
+    final String name = clazz.getName();
+    return getLogger(name);
+  }
+
+  public static Logger getLogger(final Object object) {
+    if (object instanceof String) {
+      return getLogger((String)object);
+    } else if (object instanceof Class<?>) {
+      return getLogger((Class<?>)object);
+    } else {
+      final Class<? extends Object> clazz = object.getClass();
+      return getLogger(clazz);
+    }
+  }
+
+  public static Logger getLogger(final String name) {
+    return LoggerFactory.getLogger(name);
   }
 
   public static Throwable getMessageAndException(final StringBuilder messageText,
@@ -182,7 +218,7 @@ public class Logs {
   }
 
   public static void info(final String name, final String message) {
-    final Logger logger = LoggerFactory.getLogger(name);
+    final Logger logger = getLogger(name);
     logger.info(message);
   }
 
@@ -190,7 +226,7 @@ public class Logs {
     final StringBuilder messageText = new StringBuilder();
     final Throwable logException = getMessageAndException(messageText, message, e);
 
-    final Logger logger = LoggerFactory.getLogger(name);
+    final Logger logger = getLogger(name);
     logger.info(messageText.toString(), logException);
   }
 
@@ -245,7 +281,7 @@ public class Logs {
   }
 
   public static void warn(final String name, final String message) {
-    final Logger logger = LoggerFactory.getLogger(name);
+    final Logger logger = getLogger(name);
     logger.warn(message);
   }
 
@@ -253,7 +289,7 @@ public class Logs {
     final StringBuilder messageText = new StringBuilder();
     final Throwable logException = getMessageAndException(messageText, message, e);
 
-    final Logger logger = LoggerFactory.getLogger(name);
+    final Logger logger = getLogger(name);
     logger.warn(messageText.toString(), logException);
   }
 
