@@ -5,6 +5,17 @@ import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 
 public interface Exceptions {
+  static boolean hasCause(Throwable e, final Class<? extends Throwable> clazz) {
+    while (e != null) {
+      if (clazz.isAssignableFrom(e.getClass())) {
+        return true;
+      } else {
+        e = e.getCause();
+      }
+    }
+    return false;
+  }
+
   static boolean isException(Throwable e, final Class<? extends Throwable> clazz) {
     while (e != null) {
       if (e instanceof WrappedException) {
