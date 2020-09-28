@@ -334,7 +334,12 @@ public interface Dates {
       return date;
     } else if (value instanceof Date) {
       final Date date = (Date)value;
-      return new Timestamp(date.getTime());
+      long time = date.getTime();
+      return new Timestamp(time);
+    } else if (value instanceof Calendar) {
+      final Calendar calendar = (Calendar)value;
+      long timeInMillis = calendar.getTimeInMillis();
+      return new Timestamp(timeInMillis);
     } else {
       return getTimestamp(value.toString());
     }
