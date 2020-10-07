@@ -55,15 +55,11 @@ public final class DataTypes {
         final String string = DataTypes.toString(value);
         try {
           return new URI(string);
-        } catch (
-
-        final URISyntaxException e) {
+        } catch (final URISyntaxException e) {
           throw new IllegalArgumentException("Unknown URI: " + string, e);
         }
       }
-    } catch (
-
-    final Throwable e) {
+    } catch (final Throwable e) {
       throw Exceptions.wrap(e);
     }
   });
@@ -169,45 +165,32 @@ public final class DataTypes {
       final URI uri = (URI)value;
       try {
         return uri.toURL();
-      } catch (
-
-      final MalformedURLException e) {
+      } catch (final MalformedURLException e) {
         throw new IllegalArgumentException("Cannot get url " + uri, e);
       }
     } else if (value instanceof UrlProxy) {
-
       final UrlProxy proxy = (UrlProxy)value;
       return proxy.getUrl();
     } else if (value instanceof File) {
-
       final File file = (File)value;
       try {
-
         final URI uri = file.toURI();
         return uri.toURL();
-      } catch (
-
-      final MalformedURLException e) {
+      } catch (final MalformedURLException e) {
         throw new IllegalArgumentException("Cannot get url " + file, e);
       }
     } else if (value instanceof Path) {
-
       final Path path = (Path)value;
       try {
         return path.toUri().toURL();
-      } catch (
-
-      final MalformedURLException e) {
+      } catch (final MalformedURLException e) {
         throw new IllegalArgumentException("Cannot get url " + path, e);
       }
     } else {
-
       final String string = DataTypes.toString(value);
       try {
         return new URL(string);
-      } catch (
-
-      final MalformedURLException e) {
+      } catch (final MalformedURLException e) {
         throw new IllegalArgumentException("Unknown URL", e);
       }
     }
