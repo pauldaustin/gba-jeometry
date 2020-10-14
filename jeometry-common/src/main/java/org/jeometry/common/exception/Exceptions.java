@@ -3,6 +3,7 @@ package org.jeometry.common.exception;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.ExecutionException;
 
 public interface Exceptions {
   static boolean hasCause(Throwable e, final Class<? extends Throwable> clazz) {
@@ -41,6 +42,8 @@ public interface Exceptions {
     if (e == null) {
       return null;
     } else if (e instanceof InvocationTargetException) {
+      return (T)throwCauseException(e);
+    } else if (e instanceof ExecutionException) {
       return (T)throwCauseException(e);
     } else if (e instanceof RuntimeException) {
       throw (RuntimeException)e;
