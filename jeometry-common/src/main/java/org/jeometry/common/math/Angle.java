@@ -168,6 +168,26 @@ public class Angle {
     return angDelta;
   }
 
+  public static double angleDegreeDiff(final double from, final double to) {
+    return to - from;
+  }
+
+  public static double angleDegreeDiffOriented(final double from, final double to) {
+    double diff = to - from;
+    if (diff < 0) {
+      diff += 360;
+    }
+    if (diff < 180) {
+      diff = 360 - diff;
+    }
+    return diff;
+  }
+
+  public static double angleDegreeNorthClockwiseFromRadian(final double rad) {
+    final double degrees = Math.toDegrees(rad);
+    return getNorthClockwiseAngle(degrees);
+  }
+
   public static double angleDegrees(final double x1, final double y1, final double x2,
     final double y2) {
     final double width = x2 - x1;
@@ -280,7 +300,7 @@ public class Angle {
     return negative ? -absAtanh : absAtanh;
   }
 
-  static double getNorthClockwiseAngle(final double angle) {
+  public static double getNorthClockwiseAngle(final double angle) {
     final double northAngle = (450 - angle) % 360;
     return northAngle;
   }
