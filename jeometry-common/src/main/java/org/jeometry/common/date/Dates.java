@@ -6,10 +6,13 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Set;
 import java.util.TimeZone;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,6 +22,15 @@ import org.jeometry.common.logging.Logs;
 public interface Dates {
   Pattern DATE_TIME_NANOS_PATTERN = Pattern.compile(
     "\\s*(\\d{4})-(\\d{2})-(\\d{2})(?:[\\sT]+(\\d{2})\\:(\\d{2})\\:(\\d{2})(?:\\.(\\d{1,9}))?)?\\s*");
+
+  static Set<DayOfWeek> days(final int... days) {
+    final Set<DayOfWeek> daysOfWeek = new TreeSet<>();
+    for (final int day : days) {
+      final DayOfWeek dayOfWeek = DayOfWeek.of(day);
+      daysOfWeek.add(dayOfWeek);
+    }
+    return daysOfWeek;
+  }
 
   static long debugEllapsedTime(final Class<?> clazz, final String message, final long startTime) {
     final long endTime = System.currentTimeMillis();

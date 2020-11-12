@@ -106,7 +106,7 @@ public final class DataTypes {
   public static final DataType COLOR = new FunctionDataType("color", Color.class,
     value -> WebColors.toColor(value), WebColors::toString);
 
-  public static final DataType DATE = new FunctionDataType("date", java.util.Date.class,
+  public static final DataType UTIL_DATE = new FunctionDataType("utilDate", java.util.Date.class,
     value -> Dates.getDate(value), Dates::toDateTimeIsoString, Dates::equalsNotNull);
 
   public static final DataType DATE_TIME = new FunctionDataType("dateTime", Timestamp.class,
