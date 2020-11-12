@@ -135,6 +135,10 @@ public interface Dates {
     } else if (value instanceof java.util.Date) {
       final java.util.Date date = (java.util.Date)value;
       return date;
+    } else if (value instanceof Calendar) {
+      final Calendar calendar = (Calendar)value;
+      final long timeInMillis = calendar.getTimeInMillis();
+      return new java.util.Date(timeInMillis);
     } else {
       final String string = DataTypes.toString(value);
       return getDate(string);
@@ -294,6 +298,10 @@ public interface Dates {
     } else if (value instanceof Date) {
       final Date date = (Date)value;
       return new java.sql.Date(date.getTime());
+    } else if (value instanceof Calendar) {
+      final Calendar calendar = (Calendar)value;
+      final long timeInMillis = calendar.getTimeInMillis();
+      return new java.sql.Date(timeInMillis);
     } else {
       return getSqlDate(value.toString());
     }
