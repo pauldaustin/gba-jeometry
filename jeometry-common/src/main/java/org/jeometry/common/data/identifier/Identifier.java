@@ -98,6 +98,11 @@ public interface Identifier {
     }
   }
 
+  static Identifier newInteger(final String id) {
+    final int intValue = Integer.parseInt(id);
+    return new IntegerIdentifier(intValue);
+  }
+
   static <V> TreeMap<Identifier, V> newTreeMap() {
     return new TreeMap<>(COMPARATOR);
   }
