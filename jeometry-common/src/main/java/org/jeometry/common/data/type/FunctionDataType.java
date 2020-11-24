@@ -17,18 +17,22 @@ public class FunctionDataType extends AbstractDataType {
     object2) -> {
     final Map<Object, Object> map1 = (Map<Object, Object>)object1;
     final Map<Object, Object> map2 = (Map<Object, Object>)object2;
-    final Set<Object> keys = new TreeSet<>();
-    keys.addAll(map1.keySet());
-    keys.addAll(map2.keySet());
-
-    for (final Object key : keys) {
-      final Object value1 = map1.get(key);
-      final Object value2 = map2.get(key);
-      if (!DataType.equal(value1, value2)) {
-        return false;
+    if (map1.size() == map2.size()) {
+      final Set<Object> keys1 = map1.keySet();
+      final Set<Object> keys2 = map2.keySet();
+      if (keys1.equals(keys2)) {
+        for (final Object key : keys1) {
+          final Object value1 = map1.get(key);
+          final Object value2 = map2.get(key);
+          if (!DataType.equal(value1, value2)) {
+            return false;
+          }
+        }
       }
+      return true;
+    } else {
+      return false;
     }
-    return true;
   };
 
   @SuppressWarnings("unchecked")
