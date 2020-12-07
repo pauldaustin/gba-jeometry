@@ -1,5 +1,8 @@
 package org.jeometry.common.date;
 
+import static java.time.temporal.ChronoField.INSTANT_SECONDS;
+import static java.time.temporal.ChronoField.NANO_OF_SECOND;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
@@ -7,6 +10,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
+import java.time.temporal.TemporalAccessor;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -359,6 +363,12 @@ public interface Dates {
     } else if (value instanceof Calendar) {
       final Calendar calendar = (Calendar)value;
       final long timeInMillis = calendar.getTimeInMillis();
+      return new Timestamp(timeInMillis);
+    } else if (value instanceof TemporalAccessor) {
+      final TemporalAccessor temporal = (TemporalAccessor)value;
+      final long instantSecs = temporal.getLong(INSTANT_SECONDS);
+      final int nanoOfSecond = temporal.get(NANO_OF_SECOND);
+      final long timeInMillis = instantSecs * 1000 + nanoOfSecond / 1000;
       return new Timestamp(timeInMillis);
     } else {
       return getTimestamp(value.toString());
