@@ -10,6 +10,10 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.Calendar;
 import java.util.Date;
@@ -24,6 +28,8 @@ import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.logging.Logs;
 
 public interface Dates {
+  public static final ZoneId UTC = ZoneId.of("UTC");
+
   Pattern DATE_TIME_NANOS_PATTERN = Pattern.compile(
     "\\s*(\\d{4})-(\\d{2})-(\\d{2})(?:[\\sT]+(\\d{2})\\:(\\d{2})\\:(\\d{2})(?:\\.(\\d{1,9}))?)?\\s*");
 
@@ -139,6 +145,9 @@ public interface Dates {
     } else if (value instanceof java.util.Date) {
       final java.util.Date date = (java.util.Date)value;
       return date;
+    } else if (value instanceof Instant) {
+      final Instant instant = (Instant)value;
+      return java.util.Date.from(instant);
     } else if (value instanceof Calendar) {
       final Calendar calendar = (Calendar)value;
       final long timeInMillis = calendar.getTimeInMillis();
@@ -179,6 +188,26 @@ public interface Dates {
   static Date getDate(final String pattern, final String dateString) {
     final DateFormat format = new SimpleDateFormat(pattern);
     return getDate(format, dateString);
+  }
+
+  static Instant getInstant(final Object value) {
+    if (value == null) {
+      return null;
+    } else if (value instanceof Instant) {
+      final Instant date = (Instant)value;
+      return date;
+    } else if (value instanceof Date) {
+      final Date date = (Date)value;
+      return date.toInstant();
+    } else if (value instanceof Calendar) {
+      final Calendar calendar = (Calendar)value;
+      return calendar.toInstant();
+    } else if (value instanceof TemporalAccessor) {
+      final TemporalAccessor temporal = (TemporalAccessor)value;
+      return Instant.from(temporal);
+    } else {
+      return Instant.parse(value.toString());
+    }
   }
 
   static int getInteger(final Matcher matcher, final int groupIndex, final int defaultValue) {
@@ -289,6 +318,31 @@ public interface Dates {
     return new Timestamp(time);
   }
 
+  static LocalDate getLocalDate(final Object value) {
+    if (value == null) {
+      return null;
+    } else if (value instanceof LocalDate) {
+      return (LocalDate)value;
+    } else if (value instanceof Instant) {
+      final Instant instant = (Instant)value;
+      return instant.atZone(UTC).toLocalDate();
+    } else if (value instanceof java.sql.Date) {
+      final java.sql.Date date = (java.sql.Date)value;
+      return date.toLocalDate();
+    } else if (value instanceof Date) {
+      final Date date = (Date)value;
+      return getLocalDate(date.toInstant());
+    } else if (value instanceof Calendar) {
+      final Calendar calendar = (Calendar)value;
+      return getLocalDate(calendar.toInstant());
+    } else if (value instanceof TemporalAccessor) {
+      final TemporalAccessor temporal = (TemporalAccessor)value;
+      return LocalDate.from(temporal);
+    } else {
+      return LocalDate.parse(value.toString());
+    }
+  }
+
   static java.sql.Date getSqlDate() {
     return new java.sql.Date(System.currentTimeMillis());
   }
@@ -299,6 +353,13 @@ public interface Dates {
     } else if (value instanceof java.sql.Date) {
       final java.sql.Date date = (java.sql.Date)value;
       return date;
+    } else if (value instanceof Instant) {
+      final Instant instant = (Instant)value;
+      final LocalDate date = instant.atZone(UTC).toLocalDate();
+      return getSqlDate(date);
+    } else if (value instanceof LocalDate) {
+      final LocalDate date = (LocalDate)value;
+      return java.sql.Date.valueOf(date);
     } else if (value instanceof Date) {
       final Date date = (Date)value;
       return new java.sql.Date(date.getTime());
@@ -356,6 +417,9 @@ public interface Dates {
     } else if (value instanceof Timestamp) {
       final Timestamp date = (Timestamp)value;
       return date;
+    } else if (value instanceof Instant) {
+      final Instant instant = (Instant)value;
+      return Timestamp.from(instant);
     } else if (value instanceof Date) {
       final Date date = (Date)value;
       final long time = date.getTime();
@@ -589,6 +653,24 @@ public interface Dates {
     return toEllapsedTime(endTime - startTime);
   }
 
+  static String toInstantIsoString(final Object value) {
+    if (value == null) {
+      return null;
+    } else {
+      final Instant instant = getInstant(value);
+      return instant.toString();
+    }
+  }
+
+  static String toLocalDateIsoString(final Object value) {
+    if (value == null) {
+      return null;
+    } else {
+      final LocalDate date = getLocalDate(value);
+      return date.toString();
+    }
+  }
+
   @SuppressWarnings("deprecation")
   static String toSqlDateString(final Date date) {
     if (date == null) {
@@ -649,91 +731,11 @@ public interface Dates {
     }
   }
 
-  @SuppressWarnings("deprecation")
   static String toTimestampIsoString(final Timestamp date) {
     if (date == null) {
       return null;
     } else {
-      int year = date.getYear() + 1900;
-
-      final StringBuilder string = new StringBuilder(26);
-
-      if (year < 0) {
-        string.append('-');
-        year = -year;
-      }
-      if (year < 1000) {
-        string.append('0');
-        if (year < 100) {
-          string.append('0');
-        }
-        if (year < 10) {
-          string.append('0');
-        }
-      }
-      string.append(year);
-
-      string.append('-');
-
-      final int month = date.getMonth() + 1;
-      if (month < 10) {
-        string.append('0');
-      }
-      string.append(month);
-
-      string.append('-');
-
-      final int day = date.getDate();
-      if (day < 10) {
-        string.append('0');
-      }
-      string.append(day);
-
-      string.append('T');
-
-      final int hour = date.getHours();
-      if (hour < 10) {
-        string.append('0');
-      }
-      string.append(hour);
-
-      string.append(':');
-
-      final int minutes = date.getMinutes();
-      if (minutes < 10) {
-        string.append('0');
-      }
-      string.append(minutes);
-
-      string.append(':');
-
-      final int seconds = date.getSeconds();
-      if (seconds < 10) {
-        string.append('0');
-      }
-      string.append(seconds);
-
-      string.append('.');
-      final int nanos = date.getNanos();
-      if (nanos == 0) {
-        string.append('0');
-      } else {
-        String nanosString = Integer.toString(nanos);
-
-        // Add leading zeros
-        nanosString = "000000000".substring(0, 9 - nanosString.length()) + nanosString;
-
-        // Truncate trailing zeros
-        final char[] nanosChar = new char[nanosString.length()];
-        nanosString.getChars(0, nanosString.length(), nanosChar, 0);
-        int truncIndex = 8;
-        while (nanosChar[truncIndex] == '0') {
-          truncIndex--;
-        }
-        string.append(nanosString, 0, truncIndex + 1);
-      }
-
-      return string.toString();
+      return DateTimeFormatter.ISO_INSTANT.format(date.toInstant());
     }
   }
 }

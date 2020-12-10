@@ -13,6 +13,8 @@ import java.nio.file.Path;
 import java.sql.Blob;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -157,6 +159,12 @@ public final class DataTypes {
 
   public static final DataType TIMESTAMP = new FunctionDataType("timestamp", Timestamp.class,
     value -> Dates.getTimestamp(value), Dates::toTimestampIsoString, Dates::equalsNotNull);
+
+  public static final DataType INSTANT = new FunctionDataType("instant", Instant.class,
+    value -> Dates.getInstant(value), Dates::toInstantIsoString, Object::equals);
+
+  public static final DataType LOCAL_DATE = new FunctionDataType("localDate", LocalDate.class,
+    value -> Dates.getLocalDate(value), Dates::toLocalDateIsoString, Object::equals);
 
   public static final DataType URL = new FunctionDataType("url", java.net.URL.class, value -> {
     if (value instanceof URL) {
