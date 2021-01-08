@@ -28,8 +28,10 @@ public class FunctionDataType extends AbstractDataType {
             return false;
           }
         }
+        return true;
+      } else {
+        return false;
       }
-      return true;
     } else {
       return false;
     }
