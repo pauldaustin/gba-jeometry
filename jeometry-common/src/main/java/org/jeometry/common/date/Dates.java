@@ -196,12 +196,20 @@ public interface Dates {
     } else if (value instanceof Instant) {
       final Instant date = (Instant)value;
       return date;
+    } else if (value instanceof java.sql.Date) {
+      final java.sql.Date date = (java.sql.Date)value;
+      final LocalDate localDate = date.toLocalDate();
+      return getInstant(localDate);
     } else if (value instanceof Date) {
       final Date date = (Date)value;
       return date.toInstant();
     } else if (value instanceof Calendar) {
       final Calendar calendar = (Calendar)value;
       return calendar.toInstant();
+    } else if (value instanceof LocalDate) {
+      final LocalDate date = (LocalDate)value;
+      final ZoneId zoneId = ZoneId.systemDefault();
+      return date.atStartOfDay(zoneId).toInstant();
     } else if (value instanceof TemporalAccessor) {
       final TemporalAccessor temporal = (TemporalAccessor)value;
       return Instant.from(temporal);
